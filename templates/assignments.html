@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}<h1>Teaching assignments</h1><form method="post" class="row g-2">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="col"><select class="form-select" name="teacher_id">{% for t in teachers %}<option value="{{ t.id }}">{{ t.full_name }}</option>{% endfor %}</select></div>
+<div class="col"><select class="form-select" name="classroom_id">{% for c in classes %}<option value="{{ c.id }}">{{ c.label }}</option>{% endfor %}</select></div>
+<div class="col"><select class="form-select" name="subject_id">{% for s in subjects %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div><div class="col"><button class="btn btn-primary">Assign</button></div></form>
+<ul class="mt-3">{% for a in assignments %}<li>{{ a.teacher.full_name }} — {{ a.classroom.label }} — {{ a.subject.name }}</li>{% endfor %}</ul>{% endblock %}

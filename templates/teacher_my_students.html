@@ -1,0 +1,106 @@
+{% extends "teacher_base.html" %}
+
+{% block teacher_content %}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-bold small mb-1">TEACHER PORTAL</p>
+        <h2 class="fw-bold mb-1">My Students</h2>
+        <p class="text-secondary mb-0">Directory of all students enrolled across your assigned classes with parent contact details.</p>
+    </div>
+    <span class="badge text-bg-primary px-3 py-2">{{ students|length }} Students Shown</span>
+</div>
+
+<!-- FILTERS & SEARCH -->
+<div class="content-card mb-4" style="height: auto;">
+    <form method="GET" action="{{ url_for('my_students_page') }}" class="row g-3 align-items-end">
+        <div class="col-12 col-md-5">
+            <label class="form-label small fw-semibold text-secondary">Filter by Class</label>
+            <select name="class" class="form-select" onchange="this.form.submit()">
+                <option value="">All My Classes</option>
+                {% for c in teacher_classes %}
+                <option value="{{ c.id }}" {% if selected_class == c.id %}selected{% endif %}>
+                    {{ c.label }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-5">
+            <label class="form-label small fw-semibold text-secondary">Search by Name, Admission No, or Roll No</label>
+            <input type="text" name="q" class="form-control" placeholder="Search students..." value="{{ search or '' }}">
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-erp flex-grow-1">Search</button>
+            {% if search or selected_class %}
+            <a href="{{ url_for('my_students_page') }}" class="btn btn-outline-secondary">Reset</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- STUDENTS TABLE -->
+<div class="content-card">
+    {% if students %}
+    <div class="table-responsive">
+        <table class="erp-table">
+            <thead>
+                <tr>
+                    <th>Roll No</th>
+                    <th>Student Name</th>
+                    <th>Class</th>
+                    <th>Father</th>
+                    <th>Mother</th>
+                    <th>Guardian</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>
+                        <span class="badge text-bg-light border fw-semibold">{{ s.roll_no or '-' }}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="avatar" style="width:32px; height:32px; font-size:12px;">{{ s.full_name[:1] }}</div>
+                            <div>
+                                <div class="fw-semibold">{{ s.full_name }}</div>
+                                <small class="text-secondary">Adm: {{ s.admission_no }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge text-bg-primary">{{ s.classroom.label }}</span>
+                    </td>
+                    <td>
+                        <div class="fw-semibold small">{{ s.father_name or '-' }}</div>
+                        {% if s.father_phone %}
+                        <div class="small text-secondary">📞 {{ s.father_phone }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-semibold small">{{ s.mother_name or '-' }}</div>
+                        {% if s.mother_phone %}
+                        <div class="small text-secondary">📞 {{ s.mother_phone }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-semibold small">{{ s.guardian_name or '-' }}</div>
+                        {% if s.guardian_phone %}
+                        <div class="small text-secondary">📞 {{ s.guardian_phone }}{% if s.guardian_relation %} ({{ s.guardian_relation }}){% endif %}</div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div style="font-size:40px;">👨‍🎓</div>
+        <h6 class="fw-bold mt-3">No students found</h6>
+        <p class="text-secondary small mb-0">No student matched your filter or search criteria.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

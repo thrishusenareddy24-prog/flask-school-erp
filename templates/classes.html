@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block content %}<h1>Classes & Sections</h1>
+<form method="post" class="row g-2 mb-4"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="col"><label>Grade (1–10)</label><input class="form-control" type="number" min="1" max="10" name="grade" required></div>
+<div class="col"><label>Section</label><input class="form-control" name="section" value="A" required></div>
+<div class="col"><label>Academic year</label><input class="form-control" name="year" value="2026-2027" required></div><div class="col align-self-end"><button class="btn btn-primary">Add class</button></div></form>
+<ul>{% for c in classes %}<li>{{ c.label }}</li>{% endfor %}</ul><a href="{{ url_for('admin_dashboard') }}">Back</a>{% endblock %}

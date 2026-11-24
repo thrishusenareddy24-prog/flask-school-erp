@@ -1,0 +1,71 @@
+{% extends "teacher_base.html" %}
+
+{% block teacher_content %}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-bold small mb-1">TEACHER PORTAL</p>
+        <h2 class="fw-bold mb-1">Teaching Assignments</h2>
+        <p class="text-secondary mb-0">Your class and subject allocations for the current academic session.</p>
+    </div>
+    <div class="alert alert-info py-2 px-3 mb-0 small">
+        ℹ️ Note: Teaching assignments are read-only. Only the administrator can modify assignments.
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0">Assigned Subjects &amp; Classes</h5>
+        <span class="badge text-bg-light border">{{ rows|length }} Total Assignments</span>
+    </div>
+
+    {% if rows %}
+    <div class="table-responsive">
+        <table class="erp-table">
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Subject</th>
+                    <th>Enrolled Students</th>
+                    <th>Exams Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td class="fw-semibold">{{ row.assignment.classroom.label }}</td>
+                    <td>
+                        <span class="badge text-bg-primary px-2 py-1">{{ row.assignment.subject.name }}</span>
+                    </td>
+                    <td>
+                        <span class="fw-semibold">{{ row.student_count }}</span> students
+                    </td>
+                    <td>
+                        <span class="fw-semibold">{{ row.exam_count }}</span> exams
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('attendance_page', cid=row.assignment.classroom_id) }}" class="btn-soft">
+                                ✅ Attendance
+                            </a>
+                            <a href="{{ url_for('exams_page', class_id=row.assignment.classroom_id, subject_id=row.assignment.subject_id) }}" class="btn-soft">
+                                📝 Marks &amp; Exams
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div style="font-size:40px;">📚</div>
+        <h6 class="fw-bold mt-3">No assignments found</h6>
+        <p class="text-secondary small mb-0">You have not been assigned to teach any classes or subjects yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

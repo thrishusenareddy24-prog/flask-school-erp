@@ -1,0 +1,160 @@
+{% extends "teacher_base.html" %}
+
+{% block teacher_content %}
+
+<div class="mb-4">
+    <p class="text-primary fw-bold small mb-1">EXAMS &amp; MARKS</p>
+    <h2 class="fw-bold mb-1">Exams</h2>
+    <p class="text-secondary mb-0">Create exams for your subjects, then enter or update student marks.</p>
+</div>
+
+<div class="content-card mb-4 erp-card-form">
+    <h5 class="fw-bold mb-3">Create Exam</h5>
+
+    {% if assignments %}
+    <form method="post" class="row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold">Exam name</label>
+            <input class="form-control" name="name" list="testNames" placeholder="e.g. Unit Test 1" required autocomplete="off">
+            <datalist id="testNames">
+                <option value="Unit Test 1"><option value="Unit Test 2"><option value="Weekly Test">
+                <option value="FA1"><option value="FA2"><option value="SA1"><option value="SA2">
+            </datalist>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label small fw-semibold">Class &amp; subject</label>
+            <select class="form-select" name="assignment_id" required>
+                {% for a in assignments %}
+                <option value="{{ a.id }}">{{ a.subject.name }} — {{ a.classroom.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold">Date</label>
+            <input class="form-control" type="date" name="exam_date">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold">Max marks</label>
+            <input class="form-control" type="number" name="max_marks" value="100" min="1" step="0.5" required>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-semibold">Exam room / venue</label>
+            <input class="form-control" type="text" name="room" placeholder="e.g. Hall A, 101">
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-erp">Create Exam</button>
+        </div>
+    </form>
+    {% else %}
+    <div class="text-center py-4">
+        <div style="font-size:36px;">📚</div>
+        <p class="text-secondary mb-0 mt-2">No teaching assignments yet. Please contact the administrator.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+            <h5 class="fw-bold mb-1">My Exams</h5>
+            <p class="text-secondary small mb-0">Only exams for your own classes and subjects are shown.</p>
+        </div>
+    </div>
+
+    <!-- FILTERS -->
+    {% if assignments %}
+    <form method="GET" action="{{ url_for('exams_page') }}" class="row g-2 mb-3 p-3 bg-light rounded-3 align-items-end">
+        <div class="col-12 col-md-4">
+            <label class="form-label small fw-semibold text-secondary mb-1">Filter by Class</label>
+            <select name="class_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All My Classes</option>
+                {% set seen_classes = [] %}
+                {% for a in assignments %}
+                    {% if a.classroom_id not in seen_classes %}
+                        {% set _ = seen_classes.append(a.classroom_id) %}
+                        <option value="{{ a.classroom_id }}" {% if selected_class == a.classroom_id %}selected{% endif %}>
+                            {{ a.classroom.label }}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label small fw-semibold text-secondary mb-1">Filter by Subject</label>
+            <select name="subject_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All My Subjects</option>
+                {% set seen_subjects = [] %}
+                {% for a in assignments %}
+                    {% if a.subject_id not in seen_subjects %}
+                        {% set _ = seen_subjects.append(a.subject_id) %}
+                        <option value="{{ a.subject_id }}" {% if selected_subject == a.subject_id %}selected{% endif %}>
+                            {{ a.subject.name }}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-erp flex-grow-1">Filter</button>
+            {% if selected_class or selected_subject %}
+            <a href="{{ url_for('exams_page') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+            {% endif %}
+        </div>
+    </form>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="erp-table">
+            <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Class</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Max Marks</th>
+                    <th>Room / Venue</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for e in exams %}
+                <tr>
+                    <td class="fw-semibold">{{ e.name }}</td>
+                    <td>{{ e.classroom.label }}</td>
+                    <td><span class="badge text-bg-light">{{ e.subject.name }}</span></td>
+                    <td>{{ e.exam_date.strftime('%d %b %Y') if e.exam_date else '-' }}</td>
+                    <td>{{ "%g"|format(e.max_marks) }}</td>
+                    <td>
+                        {% if e.room %}
+                        <span class="badge text-bg-secondary">{{ e.room }}</span>
+                        {% else %}
+                        <span class="text-secondary small">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <a class="btn-soft" href="{{ url_for('marks_page', eid=e.id) }}">Marks</a>
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('edit_exam', eid=e.id) }}">Edit</a>
+                            <form method="post" action="{{ url_for('delete_exam', eid=e.id) }}" class="d-inline" onsubmit="return confirm('Delete this exam?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-secondary py-4">No exams match your criteria.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

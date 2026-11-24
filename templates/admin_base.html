@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% include "_erp_styles.html" %}
+
+<div class="erp-layout">
+
+    <!-- ADMIN SIDEBAR -->
+    <aside class="erp-sidebar">
+        <h4>🎓 EduSphere</h4>
+        <p class="small text-white-50 mb-3">ADMINISTRATION</p>
+
+        <nav class="sidebar-navigation">
+            <a href="{{ url_for('admin_dashboard') }}"
+               class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                🏠 Dashboard
+            </a>
+
+            <a href="{{ url_for('add_student_page') }}"
+               class="sidebar-link {% if request.endpoint == 'add_student_page' %}active{% endif %}">
+                ➕ Add Student
+            </a>
+
+            <a href="{{ url_for('bulk_assign_page') }}"
+               class="sidebar-link {% if request.endpoint == 'bulk_assign_page' %}active{% endif %}">
+                🔗 Assign Teachers
+            </a>
+
+            <a href="{{ url_for('users_page') }}"
+               class="sidebar-link {% if request.endpoint == 'users_page' %}active{% endif %}">
+                👥 Manage Users
+            </a>
+
+            <a href="{{ url_for('classes_page') }}"
+               class="sidebar-link {% if request.endpoint == 'classes_page' %}active{% endif %}">
+                🏫 Classes
+            </a>
+
+            <a href="{{ url_for('subjects_page') }}"
+               class="sidebar-link {% if request.endpoint == 'subjects_page' %}active{% endif %}">
+                📚 Subjects
+            </a>
+
+            <a href="{{ url_for('assignments_page') }}"
+               class="sidebar-link {% if request.endpoint == 'assignments_page' %}active{% endif %}">
+                📝 Assignments
+            </a>
+
+            <a href="{{ url_for('fees_page') }}"
+               class="sidebar-link {% if request.endpoint in ['fees_page', 'fee_payment'] %}active{% endif %}">
+                💳 Fee Management
+            </a>
+        </nav>
+
+        <hr class="border-secondary mt-4">
+
+        <div class="small text-white-50">Logged in as</div>
+        <div class="fw-semibold mt-1">{{ current_user.username }}</div>
+        <div class="small text-white-50">Administrator</div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <section class="erp-main">
+        {% block admin_content %}{% endblock %}
+    </section>
+
+</div>
+
+{% block admin_scripts %}{% endblock %}
+{% endblock %}

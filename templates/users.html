@@ -1,0 +1,350 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4 mb-5">
+
+    <h1>Student & Teacher Management</h1>
+
+    <p class="text-muted">
+        Create accounts and maintain student, teacher and parent information.
+    </p>
+
+    <!-- CREATE USER FORM -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <h5 class="mb-0">Create Teacher or Student</h5>
+        </div>
+
+        <div class="card-body">
+
+            <form method="post">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <h5 class="mb-3">Account Information</h5>
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" name="role" id="role"
+                                onchange="toggleRole()" required>
+                            <option value="STUDENT">Student</option>
+                            <option value="TEACHER">Teacher</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Username</label>
+                        <input class="form-control" name="username" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Password</label>
+                        <input class="form-control" type="password"
+                               name="password" minlength="8" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input class="form-control" type="email" name="email">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        <input class="form-control" name="full_name" required>
+                    </div>
+
+                </div>
+
+                <!-- TEACHER INFORMATION -->
+                <div id="teacher-fields" style="display:none">
+
+                    <hr>
+                    <h5>Teacher Information</h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Employee ID</label>
+                            <input class="form-control" name="employee_id">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            <input class="form-control" name="phone">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- STUDENT INFORMATION -->
+                <div id="student-fields">
+
+                    <hr>
+                    <h5>Student Information</h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <label class="form-label">Admission Number</label>
+                            <input class="form-control" name="admission_no">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Roll Number</label>
+                            <input class="form-control" name="roll_no">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Class</label>
+                            <select class="form-select" name="classroom_id">
+                                <option value="">Select Class</option>
+                                {% for classroom in classes %}
+                                    <option value="{{ classroom.id }}">
+                                        {{ classroom.label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Student Phone</label>
+                            <input class="form-control" name="phone">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Address</label>
+                            <input class="form-control" name="address">
+                        </div>
+
+                    </div>
+
+                    <hr>
+                    <h5>Father Information</h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Father Name</label>
+                            <input class="form-control" name="father_name">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Father Phone</label>
+                            <input class="form-control" name="father_phone">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Father Email</label>
+                            <input class="form-control" type="email" name="father_email">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Father Occupation</label>
+                            <input class="form-control" name="father_occupation">
+                        </div>
+
+                    </div>
+
+                    <hr>
+                    <h5>Mother Information</h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mother Name</label>
+                            <input class="form-control" name="mother_name">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mother Phone</label>
+                            <input class="form-control" name="mother_phone">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mother Email</label>
+                            <input class="form-control" type="email" name="mother_email">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Mother Occupation</label>
+                            <input class="form-control" name="mother_occupation">
+                        </div>
+
+                    </div>
+
+                    <hr>
+                    <h5>Guardian Information (Optional)</h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <label class="form-label">Guardian Name</label>
+                            <input class="form-control" name="guardian_name">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Guardian Phone</label>
+                            <input class="form-control" name="guardian_phone">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Relationship</label>
+                            <input class="form-control" name="guardian_relation">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <button type="submit" class="btn btn-primary">
+                    Create Account
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- STUDENT DIRECTORY -->
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h5 class="mb-0">Student Directory</h5>
+        </div>
+
+        <div class="card-body">
+
+            <!-- SEARCH -->
+            <form method="GET" action="{{ url_for('users_page') }}"
+                  class="row g-2 mb-4">
+
+                <div class="col-md-9">
+                    <input type="text"
+                           class="form-control"
+                           name="q"
+                           placeholder="Search by student name or admission number"
+                           value="{{ search }}">
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Search
+                    </button>
+                </div>
+
+            </form>
+
+            <!-- DIRECTORY TABLE -->
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Admission No.</th>
+                            <th>Roll No.</th>
+                            <th>Class</th>
+                            <th>Father Name</th>
+                            <th>Father Phone</th>
+                            <th>Mother Name</th>
+                            <th>Mother Phone</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for student in students %}
+
+                        <tr>
+                            <td>{{ student.full_name }}</td>
+
+                            <td>{{ student.admission_no }}</td>
+
+                            <td>{{ student.roll_no or '-' }}</td>
+
+                            <td>
+                                {{ student.classroom.label if student.classroom else '-' }}
+                            </td>
+
+                            <td>{{ student.father_name or '-' }}</td>
+
+                            <td>{{ student.father_phone or '-' }}</td>
+
+                            <td>{{ student.mother_name or '-' }}</td>
+
+                            <td>{{ student.mother_phone or '-' }}</td>
+
+                            <td>
+                                <a href="{{ url_for('edit_student', sid=student.id) }}"
+                                   class="btn btn-sm btn-warning">
+                                    Edit
+                                </a>
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">
+                                No students found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <p class="text-muted mb-0">
+                Total students displayed: {{ students|length }}
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ROLE TOGGLE SCRIPT -->
+<script>
+
+function toggleRole() {
+
+    const role = document.getElementById("role").value;
+
+    const teacherFields = document.getElementById("teacher-fields");
+    const studentFields = document.getElementById("student-fields");
+
+    if (role === "TEACHER") {
+
+        teacherFields.style.display = "block";
+        studentFields.style.display = "none";
+
+    } else {
+
+        teacherFields.style.display = "none";
+        studentFields.style.display = "block";
+
+    }
+
+}
+
+document.addEventListener("DOMContentLoaded", toggleRole);
+
+</script>
+
+{% endblock %}

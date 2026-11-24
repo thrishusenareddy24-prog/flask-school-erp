@@ -1,0 +1,169 @@
+{% extends "teacher_base.html" %}
+
+{% block teacher_content %}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-bold small mb-1">TEACHER PORTAL</p>
+        <h2 class="fw-bold mb-1">Welcome, {{ teacher.full_name }}</h2>
+        <p class="text-secondary mb-0">Take attendance and manage marks for your assigned classes.</p>
+    </div>
+    <span class="badge text-bg-primary px-3 py-2">{{ teacher.designation or 'Teacher' }}</span>
+</div>
+
+<!-- STATISTICS -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a href="{{ url_for('my_classes_page') }}" class="text-decoration-none text-dark d-block h-100">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#eef2ff;">🏫</div>
+                <p class="text-secondary mt-3 mb-0">My Classes</p>
+                <div class="stat-number">{{ stats.classes }}</div>
+                <small class="text-primary fw-semibold">View my classes &rarr;</small>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a href="{{ url_for('teacher_assignments_page') }}" class="text-decoration-none text-dark d-block h-100">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#f3e8ff;">📚</div>
+                <p class="text-secondary mt-3 mb-0">Teaching Assignments</p>
+                <div class="stat-number">{{ stats.assignments }}</div>
+                <small class="text-primary fw-semibold">View assignments &rarr;</small>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a href="{{ url_for('my_students_page') }}" class="text-decoration-none text-dark d-block h-100">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;">🎓</div>
+                <p class="text-secondary mt-3 mb-0">My Students</p>
+                <div class="stat-number">{{ stats.students }}</div>
+                <small class="text-primary fw-semibold">View all students &rarr;</small>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a href="{{ url_for('exams_page') }}" class="text-decoration-none text-dark d-block h-100">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#ffedd5;">📝</div>
+                <p class="text-secondary mt-3 mb-0">Exams Created</p>
+                <div class="stat-number">{{ stats.exams }}</div>
+                <small class="text-primary fw-semibold">Manage exams &rarr;</small>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <!-- QUICK ACTIONS -->
+    <div class="col-12 col-lg-4">
+        <div class="content-card">
+            <h5 class="fw-bold mb-1">Quick Actions</h5>
+            <p class="text-secondary small mb-4">Jump to your daily tasks.</p>
+
+            {% set first = assignments[0] if assignments else None %}
+
+            {% if first %}
+            <a href="{{ url_for('attendance_page', cid=first.classroom_id) }}" class="quick-link">
+                <span class="quick-icon">✅</span>
+                <div>
+                    <div class="fw-semibold">Mark Attendance</div>
+                    <small class="text-secondary">{{ first.classroom.label }}</small>
+                </div>
+            </a>
+            {% endif %}
+
+            <a href="{{ url_for('my_classes_page') }}" class="quick-link">
+                <span class="quick-icon">🏫</span>
+                <div>
+                    <div class="fw-semibold">My Classes</div>
+                    <small class="text-secondary">View all assigned classes</small>
+                </div>
+            </a>
+
+            <a href="{{ url_for('teacher_assignments_page') }}" class="quick-link">
+                <span class="quick-icon">📚</span>
+                <div>
+                    <div class="fw-semibold">Teaching Assignments</div>
+                    <small class="text-secondary">View assignments &amp; exam counts</small>
+                </div>
+            </a>
+
+            <a href="{{ url_for('my_students_page') }}" class="quick-link">
+                <span class="quick-icon">👨‍🎓</span>
+                <div>
+                    <div class="fw-semibold">My Students</div>
+                    <small class="text-secondary">Search all student contacts</small>
+                </div>
+            </a>
+
+            <a href="{{ url_for('exams_page') }}" class="quick-link">
+                <span class="quick-icon">📝</span>
+                <div>
+                    <div class="fw-semibold">Exams &amp; Marks</div>
+                    <small class="text-secondary">Set up exams and record marks</small>
+                </div>
+            </a>
+
+            {% if first %}
+            <a href="{{ url_for('teacher_students', cid=first.classroom_id) }}" class="quick-link">
+                <span class="quick-icon">👪</span>
+                <div>
+                    <div class="fw-semibold">Student &amp; Parent Details</div>
+                    <small class="text-secondary">View contact information</small>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ASSIGNMENTS -->
+    <div class="col-12 col-lg-8">
+        <div class="content-card">
+            <h5 class="fw-bold mb-1">My Teaching Assignments</h5>
+            <p class="text-secondary small mb-3">Classes and subjects assigned to you by the administrator.</p>
+
+            {% if assignments %}
+            <div class="table-responsive">
+                <table class="erp-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Subject</th>
+                            <th>Students</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for a in assignments %}
+                        <tr>
+                            <td class="fw-semibold">{{ a.classroom.label }}</td>
+                            <td><span class="badge text-bg-light">{{ a.subject.name }}</span></td>
+                            <td>{{ counts.get(a.classroom_id, 0) }}</td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn-soft" href="{{ url_for('attendance_page', cid=a.classroom_id) }}">Attendance</a>
+                                    <a class="btn-soft" href="{{ url_for('exams_page') }}">Marks</a>
+                                    <a class="btn-soft" href="{{ url_for('teacher_students', cid=a.classroom_id) }}">Students</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div style="font-size:40px;">📚</div>
+                <h6 class="fw-bold mt-3">No teaching assignments yet</h6>
+                <p class="text-secondary small mb-0">Please ask the administrator to assign your classes and subjects.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

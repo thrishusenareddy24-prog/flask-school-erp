@@ -1,0 +1,177 @@
+{% extends "admin_base.html" %}
+
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-bold small mb-1">STAFF ALLOCATION</p>
+        <h2 class="fw-bold mb-1">Assign Teachers</h2>
+        <p class="text-secondary mb-0">Assign a teacher to multiple classes and subjects simultaneously.</p>
+    </div>
+    <a href="{{ url_for('assignments_page') }}" class="btn btn-outline-secondary btn-sm">All Assignments Table</a>
+</div>
+
+<!-- BULK ASSIGN FORM -->
+<div class="content-card mb-4 erp-card-form">
+    <h5 class="fw-bold mb-3">Bulk Assign Teacher</h5>
+
+    <form method="POST" action="{{ url_for('bulk_assign_page') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="row g-4">
+            <!-- 1. CHOOSE TEACHER -->
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">1. Select Teacher <span class="text-danger">*</span></label>
+                <select name="teacher_id" class="form-select" required onchange="window.location.href='{{ url_for('bulk_assign_page') }}?teacher_id=' + this.value">
+                    <option value="">-- Choose Teacher --</option>
+                    {% for t in teachers %}
+                    <option value="{{ t.id }}" {% if selected_teacher and selected_teacher.id == t.id %}selected{% endif %}>
+                        {{ t.full_name }} ({{ t.employee_id }})
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="text-secondary">Selecting updates the assignments view below.</small>
+            </div>
+
+            <!-- 2. CHOOSE CLASSES -->
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">2. Select Classrooms <span class="text-danger">*</span></label>
+                <div class="border rounded p-2 bg-light" style="max-height: 220px; overflow-y: auto;">
+                    {% for c in classes %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="classroom_ids" value="{{ c.id }}" id="class_{{ c.id }}">
+                        <label class="form-check-label small" for="class_{{ c.id }}">
+                            {{ c.label }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <small class="text-secondary">Check all classes to assign.</small>
+            </div>
+
+            <!-- 3. CHOOSE SUBJECTS -->
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">3. Select Subjects (Grade Range) <span class="text-danger">*</span></label>
+                <div class="border rounded p-2 bg-light" style="max-height: 220px; overflow-y: auto;">
+                    {% for s in subjects %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="subject_ids" value="{{ s.id }}" id="subj_{{ s.id }}">
+                        <label class="form-check-label small" for="subj_{{ s.id }}">
+                            <strong>{{ s.name }}</strong> (Grades {{ s.grades }})
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <small class="text-secondary">Check all subjects to assign.</small>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-erp">Assign Selected Combinations</button>
+        </div>
+    </form>
+</div>
+
+<!-- TEACHER'S CURRENT ASSIGNMENTS -->
+<div class="row g-4">
+    <div class="col-12 col-lg-7">
+        <div class="content-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">
+                    {% if selected_teacher %}
+                        Current Assignments for {{ selected_teacher.full_name }}
+                    {% else %}
+                        Current Assignments (Select a Teacher Above)
+                    {% endif %}
+                </h5>
+                {% if selected_teacher %}
+                <span class="badge text-bg-primary">{{ teacher_assignments|length }} Assignments</span>
+                {% endif %}
+            </div>
+
+            {% if selected_teacher %}
+                {% if teacher_assignments %}
+                <div class="table-responsive">
+                    <table class="erp-table">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Students</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in teacher_assignments %}
+                            <tr>
+                                <td class="fw-semibold">{{ a.classroom.label }}</td>
+                                <td><span class="badge text-bg-light border">{{ a.subject.name }}</span></td>
+                                <td>{{ student_counts.get(a.classroom_id, 0) }} students</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('delete_assignment', aid=a.id) }}" class="d-inline" onsubmit="return confirm('Remove this assignment?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-secondary py-3 mb-0">No active teaching assignments for {{ selected_teacher.full_name }}.</p>
+                {% endif %}
+            {% else %}
+            <p class="text-secondary py-3 mb-0">Select a teacher from the dropdown to review and remove their assignments.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- CLASS VIEW -->
+    <div class="col-12 col-lg-5">
+        <div class="content-card">
+            <h5 class="fw-bold mb-2">Class View</h5>
+            <p class="text-secondary small mb-3">Inspect teachers, subjects and student enrollment by class.</p>
+
+            <form method="GET" action="{{ url_for('bulk_assign_page') }}" class="mb-3">
+                {% if selected_teacher %}
+                <input type="hidden" name="teacher_id" value="{{ selected_teacher.id }}">
+                {% endif %}
+                <label class="form-label small fw-semibold">Choose Class</label>
+                <select name="class_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Select Class --</option>
+                    {% for c in classes %}
+                    <option value="{{ c.id }}" {% if view_class and view_class.id == c.id %}selected{% endif %}>
+                        {{ c.label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            {% if view_class %}
+            <div class="p-3 bg-light rounded-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold">{{ view_class.label }}</span>
+                    <span class="badge text-bg-success">{{ class_student_count }} Enrolled Students</span>
+                </div>
+
+                <div class="small fw-semibold text-secondary text-uppercase mb-2">Assigned Teachers &amp; Subjects</div>
+                {% if class_assignments %}
+                <ul class="list-group list-group-flush small">
+                    {% for ca in class_assignments %}
+                    <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0">
+                        <span><strong>{{ ca.subject.name }}</strong></span>
+                        <span>{{ ca.teacher.full_name }} ({{ ca.teacher.employee_id }})</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-secondary small mb-0">No teachers assigned to this class yet.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

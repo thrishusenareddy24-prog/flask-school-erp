@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% include "_erp_styles.html" %}
+
+<div class="erp-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="erp-sidebar">
+        <h4>🎓 EduSphere</h4>
+
+        <p class="small text-white-50 mb-2">TEACHER PORTAL</p>
+
+        <nav class="sidebar-navigation">
+            <a href="{{ url_for('teacher_dashboard') }}"
+               class="sidebar-link {% if request.endpoint == 'teacher_dashboard' %}active{% endif %}">
+                🏠 Dashboard
+            </a>
+
+            <a href="{{ url_for('my_classes_page') }}"
+               class="sidebar-link {% if request.endpoint == 'my_classes_page' %}active{% endif %}">
+                🏫 My Classes
+            </a>
+
+            <a href="{{ url_for('teacher_assignments_page') }}"
+               class="sidebar-link {% if request.endpoint == 'teacher_assignments_page' %}active{% endif %}">
+                📚 Teaching Assignments
+            </a>
+
+            <a href="{{ url_for('my_students_page') }}"
+               class="sidebar-link {% if request.endpoint == 'my_students_page' %}active{% endif %}">
+                👨‍🎓 My Students
+            </a>
+
+            <a href="{{ url_for('exams_page') }}"
+               class="sidebar-link {% if request.endpoint in ['exams_page', 'marks_page', 'edit_exam'] %}active{% endif %}">
+                📝 Exams &amp; Marks
+            </a>
+        </nav>
+
+        {% if nav_classes %}
+        <div class="sidebar-label">Attendance</div>
+        <nav class="sidebar-navigation">
+            {% for c in nav_classes %}
+            <a href="{{ url_for('attendance_page', cid=c.id) }}"
+               class="sidebar-link {% if request.endpoint == 'attendance_page' and request.view_args.get('cid') == c.id %}active{% endif %}">
+                ✅ Class {{ c.grade }}-{{ c.section }}
+            </a>
+            {% endfor %}
+        </nav>
+
+        <div class="sidebar-label">Students &amp; Parents</div>
+        <nav class="sidebar-navigation">
+            {% for c in nav_classes %}
+            <a href="{{ url_for('teacher_students', cid=c.id) }}"
+               class="sidebar-link {% if request.endpoint == 'teacher_students' and request.view_args.get('cid') == c.id %}active{% endif %}">
+                👥 Class {{ c.grade }}-{{ c.section }}
+            </a>
+            {% endfor %}
+        </nav>
+        {% endif %}
+
+        <hr class="border-secondary mt-4">
+
+        <div class="small text-white-50">Logged in as</div>
+        <div class="fw-semibold mt-1">{{ nav_teacher.full_name if nav_teacher else current_user.username }}</div>
+        {% if nav_teacher %}<div class="small text-white-50">{{ nav_teacher.employee_id }}</div>{% endif %}
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <section class="erp-main">
+        {% block teacher_content %}{% endblock %}
+    </section>
+
+</div>
+
+{% block teacher_scripts %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}<h1>Subjects</h1><form method="post" class="row g-2 mb-3">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="col"><input class="form-control" name="name" placeholder="Subject name" required></div>
+<div class="col"><input class="form-control" name="grades" value="1-10" placeholder="Grades"></div><div class="col"><button class="btn btn-primary">Add</button></div></form>
+<ul>{% for s in subjects %}<li>{{ s.name }} ({{ s.grades }})</li>{% endfor %}</ul>{% endblock %}

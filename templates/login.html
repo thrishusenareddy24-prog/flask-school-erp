@@ -1,0 +1,274 @@
+```html
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    body {
+        background: #f3f5fb !important;
+        font-family: Inter, Arial, sans-serif;
+    }
+
+    .login-wrapper {
+        max-width: 950px;
+        margin: 35px auto;
+    }
+
+    .login-card {
+        background: white;
+        border: 0;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(20, 35, 80, .09);
+    }
+
+    .login-banner {
+        background: linear-gradient(145deg, #172554, #3730a3);
+        color: white;
+        padding: 55px 35px;
+        height: 100%;
+    }
+
+    .login-form {
+        padding: 45px 38px;
+    }
+
+    .role-option {
+        display: block;
+        cursor: pointer;
+    }
+
+    .role-option input {
+        display: none;
+    }
+
+    .role-box {
+        border: 1px solid #e1e5ef;
+        border-radius: 13px;
+        padding: 16px 8px;
+        text-align: center;
+        transition: .2s;
+        height: 100%;
+    }
+
+    .role-option input:checked + .role-box {
+        border: 2px solid #4f46e5;
+        background: #eef2ff;
+        color: #3730a3;
+    }
+
+    .role-icon {
+        font-size: 27px;
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    .form-control {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .login-btn {
+        background: #4338ca;
+        border: none;
+        border-radius: 10px;
+        padding: 13px;
+        color: white;
+        font-weight: 600;
+    }
+
+    .login-btn:hover {
+        background: #312e81;
+        color: white;
+    }
+
+    @media(max-width: 767px) {
+        .login-banner {
+            padding: 30px;
+        }
+
+        .login-form {
+            padding: 30px 22px;
+        }
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="card login-card">
+        <div class="row g-0">
+
+            <div class="col-md-5">
+                <div class="login-banner d-flex flex-column justify-content-center">
+                    <div style="font-size:45px;">🎓</div>
+
+                    <h2 class="fw-bold mt-3">EduSphere</h2>
+
+                    <h5 class="fw-semibold mt-2">
+                        Your School, One Platform.
+                    </h5>
+
+                    <p class="mt-3 text-white-50">
+                        A smarter way to manage academics,
+                        attendance, students, teachers and
+                        school administration.
+                    </p>
+
+                    <div class="mt-4 small text-white-50">
+                        CBSE School Management System
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="login-form">
+
+                    <h3 class="fw-bold mb-2">Welcome Back!</h3>
+
+                    <p class="text-secondary mb-4">
+                        Select your account type to continue.
+                    </p>
+
+                    <form method="POST"
+                          action="{{ url_for('login') }}"
+                          autocomplete="off">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <label class="form-label fw-semibold mb-3">
+                            Login as
+                        </label>
+
+                        <div class="row g-2 mb-4">
+
+                            <div class="col-4">
+                                <label class="role-option">
+                                    <input type="radio"
+                                           name="role"
+                                           value="ADMIN"
+                                           required>
+                                    <div class="role-box">
+                                        <span class="role-icon">🛡️</span>
+                                        <strong>Admin</strong>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="col-4">
+                                <label class="role-option">
+                                    <input type="radio"
+                                           name="role"
+                                           value="TEACHER"
+                                           required>
+                                    <div class="role-box">
+                                        <span class="role-icon">👨‍🏫</span>
+                                        <strong>Teacher</strong>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="col-4">
+                                <label class="role-option">
+                                    <input type="radio"
+                                           name="role"
+                                           value="STUDENT"
+                                           required>
+                                    <div class="role-box">
+                                        <span class="role-icon">🎓</span>
+                                        <strong>Student</strong>
+                                    </div>
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <label class="form-label fw-semibold">
+                            Username
+                        </label>
+
+                        <input type="text"
+                               name="username"
+                               id="username"
+                               class="form-control mb-3"
+                               placeholder="Enter your username"
+                               autocomplete="off"
+                               autocapitalize="none"
+                               spellcheck="false"
+                               required>
+
+                        <label class="form-label fw-semibold">
+                            Password
+                        </label>
+
+                        <div class="input-group mb-4">
+                            <input type="password"
+                                   name="password"
+                                   id="password"
+                                   class="form-control"
+                                   placeholder="Enter your password"
+                                   autocomplete="new-password"
+                                   required>
+
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    id="togglePasswordButton"
+                                    onclick="togglePassword()">
+                                <span id="eyeIcon">Show</span>
+                            </button>
+                        </div>
+
+                        <button type="submit"
+                                class="btn login-btn w-100">
+                            Sign In →
+                        </button>
+
+                    </form>
+
+                    <p class="text-center text-secondary small mt-4 mb-0">
+                        Secure role-based access · EduSphere
+                    </p>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function clearLoginFields() {
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    username.value = "";
+    password.value = "";
+    password.type = "password";
+    eyeIcon.textContent = "Show";
+}
+
+// Clear credentials whenever the selected role changes.
+document.querySelectorAll('input[name="role"]').forEach(function (radio) {
+    radio.addEventListener("change", clearLoginFields);
+});
+
+// Clear any browser-restored values when the page loads.
+window.addEventListener("pageshow", function () {
+    clearLoginFields();
+});
+
+function togglePassword() {
+    const password = document.getElementById("password");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    if (password.type === "password") {
+        password.type = "text";
+        eyeIcon.textContent = "Hide";
+    } else {
+        password.type = "password";
+        eyeIcon.textContent = "Show";
+    }
+}
+</script>
+
+{% endblock %}

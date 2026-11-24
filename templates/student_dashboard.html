@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% include "_erp_styles.html" %}
+
+<style>
+    .student-hero {
+        background: linear-gradient(145deg, #172554, #3730a3);
+        color: white; border-radius: 18px; padding: 28px 30px;
+    }
+    .hero-avatar {
+        width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.15);
+        display: grid; place-items: center; font-size: 26px; font-weight: 800; flex-shrink: 0;
+    }
+    .parent-box { border: 1px solid #edf0f5; border-radius: 14px; padding: 18px; height: 100%; }
+    .parent-box h6 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: #6b7280; }
+</style>
+
+{% if not student %}
+
+    <div class="content-card text-center py-5">
+        <div style="font-size:40px;">🎓</div>
+        <h5 class="fw-bold mt-3">Your student profile has not been created yet</h5>
+        <p class="text-secondary mb-0">Please contact the school administrator.</p>
+    </div>
+
+{% else %}
+
+    {% set present_count = attendance|selectattr('status', 'equalto', 'Present')|list|length %}
+
+    <!-- HERO -->
+    <div class="student-hero mb-4">
+        <div class="d-flex align-items-center flex-wrap gap-3">
+            <div class="hero-avatar">{{ student.full_name[:1] }}</div>
+            <div class="flex-grow-1">
+                <p class="small text-white-50 fw-bold mb-1">STUDENT PORTAL</p>
+                <h2 class="fw-bold mb-1">{{ student.full_name }}</h2>
+                <div class="text-white-50">
+                    Admission No: {{ student.admission_no }}
+                    {% if student.roll_no %} · Roll No: {{ student.roll_no }}{% endif %}
+                </div>
+            </div>
+            <div class="text-md-end">
+                <div class="fw-semibold">{{ student.classroom.label }}</div>
+                <div class="small text-white-50">Academic Year {{ student.classroom.academic_year }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#eef2ff;">📝</div>
+                <p class="text-secondary mt-3 mb-0">Exam Results</p>
+                <div class="stat-number">{{ marks|length }}</div>
+                <small class="text-success">Marks published</small>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dcfce7;">✅</div>
+                <p class="text-secondary mt-3 mb-0">Days Present</p>
+                <div class="stat-number">{{ present_count }}<span class="fs-6 text-secondary fw-normal"> / {{ attendance|length }}</span></div>
+                <small class="text-success">Latest 50 records</small>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#ffedd5;">💳</div>
+                <p class="text-secondary mt-3 mb-0">Fee Records</p>
+                <div class="stat-number">{{ fees|length }}</div>
+                <small class="text-success">Academic year fees</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBJECTS -->
+    {% if subjects %}
+    <div class="content-card mb-4" style="height:auto;">
+        <h5 class="fw-bold mb-2">Enrolled Subjects</h5>
+        <p class="text-secondary small mb-3">Academic curriculum subjects for {{ student.classroom.label }}:</p>
+        <div class="d-flex flex-wrap gap-2">
+            {% for sub in subjects %}
+            <span class="badge text-bg-primary px-3 py-2">{{ sub.name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- PARENT & GUARDIAN INFORMATION -->
+    <div class="content-card mb-4" style="height:auto;">
+        <h5 class="fw-bold mb-1">Parent &amp; Guardian Information</h5>
+        <p class="text-secondary small mb-3">To correct any detail, please contact the school administrator.</p>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="parent-box">
+                    <h6>👨 Father</h6>
+                    <div class="fw-semibold">{{ student.father_name or '-' }}</div>
+                    <div class="small text-secondary mt-2">📞 {{ student.father_phone or '-' }}</div>
+                    <div class="small text-secondary">✉️ {{ student.father_email or '-' }}</div>
+                    <div class="small text-secondary">💼 {{ student.father_occupation or '-' }}</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="parent-box">
+                    <h6>👩 Mother</h6>
+                    <div class="fw-semibold">{{ student.mother_name or '-' }}</div>
+                    <div class="small text-secondary mt-2">📞 {{ student.mother_phone or '-' }}</div>
+                    <div class="small text-secondary">✉️ {{ student.mother_email or '-' }}</div>
+                    <div class="small text-secondary">💼 {{ student.mother_occupation or '-' }}</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="parent-box">
+                    <h6>🛡️ Guardian</h6>
+                    <div class="fw-semibold">{{ student.guardian_name or '-' }}</div>
+                    <div class="small text-secondary mt-2">🤝 {{ student.guardian_relation or '-' }}</div>
+                    <div class="small text-secondary">📞 {{ student.guardian_phone or '-' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACADEMIC PERFORMANCE -->
+    <div class="content-card mb-4" style="height:auto;">
+        <h5 class="fw-bold mb-3">Academic Performance</h5>
+
+        {% if marks %}
+        <div class="table-responsive">
+            <table class="erp-table">
+                <thead>
+                    <tr><th>Exam</th><th>Subject</th><th>Marks</th><th>Percentage</th><th>Grade</th></tr>
+                </thead>
+                <tbody>
+                {% for m in marks %}
+                    <tr>
+                        <td class="fw-semibold">{{ m.exam.name }}</td>
+                        <td><span class="badge text-bg-light">{{ m.exam.subject.name }}</span></td>
+                        <td>{{ "%g"|format(m.marks_obtained) }}/{{ "%g"|format(m.exam.max_marks) }}</td>
+                        <td>
+                            {% if m.exam.max_marks > 0 %}{{ "%.1f"|format(m.marks_obtained / m.exam.max_marks * 100) }}%{% else %}N/A{% endif %}
+                        </td>
+                        <td>
+                            {% if m.exam.max_marks > 0 %}
+                                <span class="badge text-bg-primary">{{ grade_for(m.marks_obtained / m.exam.max_marks * 100) }}</span>
+                            {% else %}N/A{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-secondary mb-0">No examination marks available yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- ATTENDANCE & FEES -->
+    <div class="row g-3">
+
+        <div class="col-12 col-lg-6">
+            <div class="content-card">
+                <h5 class="fw-bold mb-3">Attendance Records</h5>
+
+                {% if attendance %}
+                <div class="table-responsive">
+                    <table class="erp-table">
+                        <thead><tr><th>Date</th><th>Status</th></tr></thead>
+                        <tbody>
+                        {% for a in attendance %}
+                            <tr>
+                                <td>{{ a.attendance_date.strftime('%d %b %Y') }}</td>
+                                <td>
+                                    {% if a.status == "Present" %}<span class="badge bg-success">Present</span>
+                                    {% elif a.status == "Absent" %}<span class="badge bg-danger">Absent</span>
+                                    {% else %}<span class="badge bg-warning text-dark">{{ a.status }}</span>{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-secondary mb-0">No attendance records available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="content-card">
+                <h5 class="fw-bold mb-3">Fee Details</h5>
+
+                {% if fees %}
+                <div class="table-responsive">
+                    <table class="erp-table">
+                        <thead><tr><th>Year</th><th>Total</th><th>Paid</th><th>Balance</th></tr></thead>
+                        <tbody>
+                        {% for f, paid, balance in fees %}
+                            <tr>
+                                <td>{{ f.academic_year }}</td>
+                                <td>₹{{ "%.2f"|format(f.total_fee) }}</td>
+                                <td class="text-success">₹{{ "%.2f"|format(paid) }}</td>
+                                <td class="{% if balance > 0 %}text-danger fw-semibold{% else %}text-success{% endif %}">₹{{ "%.2f"|format(balance) }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-secondary mb-0">No fee records available yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

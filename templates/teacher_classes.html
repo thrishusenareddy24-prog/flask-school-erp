@@ -1,0 +1,65 @@
+{% extends "teacher_base.html" %}
+
+{% block teacher_content %}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-bold small mb-1">TEACHER PORTAL</p>
+        <h2 class="fw-bold mb-1">My Classes</h2>
+        <p class="text-secondary mb-0">Overview of the classrooms and subjects you are currently assigned to teach.</p>
+    </div>
+</div>
+
+{% if classes_data %}
+<div class="row g-4">
+    {% for item in classes_data %}
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="content-card d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="avatar" style="background:#e0e7ff; color:#3730a3; font-size:18px;">
+                        🏫
+                    </div>
+                    <span class="badge text-bg-primary px-3 py-2">
+                        {{ item.student_count }} Students
+                    </span>
+                </div>
+
+                <h4 class="fw-bold mb-2">{{ item.classroom.label }}</h4>
+
+                <div class="mb-3">
+                    <small class="text-secondary d-block mb-1 text-uppercase fw-semibold" style="font-size:11px; letter-spacing:0.05em;">Your Subjects in this Class</small>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for sub in item.subjects %}
+                        <span class="badge text-bg-light border px-2 py-1">{{ sub.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-top mt-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('attendance_page', cid=item.classroom.id) }}" class="btn-soft">
+                        ✅ Attendance
+                    </a>
+                    <a href="{{ url_for('teacher_students', cid=item.classroom.id) }}" class="btn-soft">
+                        👥 Students &amp; Parents
+                    </a>
+                    <a href="{{ url_for('exams_page', class_id=item.classroom.id) }}" class="btn-soft">
+                        📝 Exams
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="content-card text-center py-5">
+    <div style="font-size:40px;">🏫</div>
+    <h5 class="fw-bold mt-3">No Classes Assigned</h5>
+    <p class="text-secondary mb-0">You currently do not have any teaching assignments. Please contact the administrator.</p>
+</div>
+{% endif %}
+
+{% endblock %}

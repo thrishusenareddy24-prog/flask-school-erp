@@ -1,0 +1,83 @@
+{% extends "teacher_base.html" %}
+
+{% block teacher_content %}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <p class="text-primary fw-bold small mb-1">STUDENTS &amp; PARENTS</p>
+        <h2 class="fw-bold mb-1">{{ classroom.label }}</h2>
+        <p class="text-secondary mb-0">{{ students|length }} students · parent details are read-only; the administrator can edit them.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn-soft" href="{{ url_for('attendance_page', cid=classroom.id) }}">✅ Attendance</a>
+        <a class="btn-soft" href="{{ url_for('teacher_dashboard') }}">← Back</a>
+    </div>
+</div>
+
+<div class="content-card">
+
+    <input type="text" id="studentSearch" class="form-control mb-3" placeholder="Search by student or parent name">
+
+    <div class="table-responsive">
+        <table class="erp-table" id="studentTable">
+            <thead>
+                <tr>
+                    <th>Roll</th>
+                    <th>Student</th>
+                    <th>Father</th>
+                    <th>Mother</th>
+                    <th>Guardian</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for s in students %}
+                <tr>
+                    <td>{{ s.roll_no or '-' }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="avatar">{{ s.full_name[:1] }}</span>
+                            <div>
+                                <div class="fw-semibold">{{ s.full_name }}</div>
+                                <small class="text-secondary">Adm: {{ s.admission_no }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold">{{ s.father_name or '-' }}</div>
+                        {% if s.father_phone %}<small class="text-secondary">📞 {{ s.father_phone }}</small>{% endif %}
+                        {% if s.father_occupation %}<br><small class="text-secondary">{{ s.father_occupation }}</small>{% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-semibold">{{ s.mother_name or '-' }}</div>
+                        {% if s.mother_phone %}<small class="text-secondary">📞 {{ s.mother_phone }}</small>{% endif %}
+                        {% if s.mother_occupation %}<br><small class="text-secondary">{{ s.mother_occupation }}</small>{% endif %}
+                    </td>
+                    <td>
+                        {% if s.guardian_name %}
+                            <div class="fw-semibold">{{ s.guardian_name }}</div>
+                            <small class="text-secondary">
+                                {% if s.guardian_relation %}{{ s.guardian_relation }} · {% endif %}{{ s.guardian_phone or '' }}
+                            </small>
+                        {% else %}-{% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5" class="text-center text-secondary py-4">No students in this class.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block teacher_scripts %}
+<script>
+document.getElementById("studentSearch").addEventListener("input", function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll("#studentTable tbody tr").forEach(function (row) {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
+    });
+});
+</script>
+{% endblock %}
